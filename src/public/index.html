@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Chat Client</title>
+    <script src="https://cdn.socket.io/4.5.1/socket.io.min.js"></script>
+</head>
+
+<body>
+
+    <h2>Chat Client</h2>
+    <input id="roomInput" placeholder="Room ID" />
+    <button id="joinBtn">Join Room</button>
+
+    <input id="nameInput" placeholder="Your name" />
+    <br /><br />
+    <textarea id="messageInput" placeholder="Type a message"></textarea>
+    <button id="sendBtn">Send</button>
+
+    <ul id="messages"></ul>
+
+    <script>
+        // Connect to server (adjust URL if needed)
+        const socket = io("http://D1-1-PC13.local:3000");
+
+        const roomInput = document.getElementById("roomInput");
+        const nameInput = document.getElementById("nameInput");
+        const messageInput = document.getElementById("messageInput");
+        const sendBtn = document.getElementById("sendBtn");
+        const messagesList = document.getElementById("messages");
+
+        // When connected
+        socket.on("connect", () => {
+            console.log("Connected to server as", socket.id);
+        });
+
+        // Listen for incoming chat messages
+        socket.on("chat-message", (data) => {
+            const { sender, message, timestamp } = data;
+            const li = document.createElement("li");
+            li.textContent = `[${new Date(timestamp).toLocaleTimeString()}] ${sender}: ${message}`;
+            messagesList.appendChild(li);
+        });
+
+        socket.on("user-left", (data) => {
+            const li = document.createElement("li");
+            li.textContent = `${data.username} left the chat`;
+            messagesList.appendChild(li);
+        });
+
+        socket.on("error", (errMsg) => {
+            alert("Socket error: " + errMsg);
+        });
+
+        // Join room when room ID input loses focus or on a button (you can add a join button)
+        joinBtn.addEventListener("click", () => {
+            const roomId = roomInput.value.trim();
+            if (roomId) {
+                socket.emit("join-room", {
+                    roomId: roomInput.value.trim(),
+                    username: nameInput.value.trim()
+                });
+                console.log(`Joined room: ${roomId}`);
+                messagesList.innerHTML = ""; // Clear previous messages
+            }
+        });
+
+        // Send message on button click
+        sendBtn.addEventListener("click", () => {
+            const roomId = roomInput.value.trim();
+            const sender = nameInput.value.trim();
+            const message = messageInput.value.trim();
+
+            if (!roomId || !sender || !message) {
+                alert("Please enter room ID, your name, and a message.");
+                return;
+            }
+
+            // Emit chat message to server
+            socket.emit("chat-message", message);
+
+            // Optionally append your own message immediately
+            const li = document.createElement("li");
+            li.textContent = `[${new Date().toLocaleTimeString()}] You: ${message}`;
+            messagesList.appendChild(li);
+
+            messageInput.value = ""; // Clear input
+        });
+    </script>
+
+</body>
+
+</html>

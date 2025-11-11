@@ -1,0 +1,44 @@
+# Node.js dependencies
+/node_modules
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+
+# Optional npm cache folder
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Build output
+dist
+build
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE/editor folders
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Optional coverage directory
+coverage/
+
+# Optional test output
+test-results/
+
+# Socket.IO generated files (if any temporary files)
+*.sock
+
