@@ -4,7 +4,7 @@
   "description": "BackEnd for chat application",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "lint": "echo 'No linter configured'"
@@ -19,6 +19,7 @@
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
+    "jest": "^30.2.0",
     "nodemon": "^3.1.10",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
