@@ -19,24 +19,24 @@ This project simulates modern chat features such as private chats, group chats, 
 ## 📂 Project Structure
 
 mean-chat-backend/
-├─ server.js # Main server file
-├─ socket.js # Socket.io event handlers
-├─ routes/
-│ └─ auth.js # Authentication routes
-├─ models/
-│ ├─ User.js
-│ ├─ Chat.js
-│ └─ Message.js
-├─ public/ # Static frontend testing files
-├─ data-model.md # Mermaid ER diagram of database
-├─ package.json
-└─ README.md
+- `server.js` — Main server file
+- `socket.js` — Socket.io event handlers
+- `routes/`
+  - `auth.js` — Authentication routes
+- `models/`
+  - `User.js`
+  - `Chat.js`
+  - `Message.js`
+- `public/` — Static frontend testing files
+- `data-model.md` — Mermaid ER diagram of database
+- `package.json`
+- `README.md`
 
 ## 🗃️ Database Schema
 
 The database is MongoDB with collections for Users, Chats, and Messages.  
 
-See the full [Database Model](data-model.md) for details.
+See the full [Database Model](db-model.md) for details.
 
 ## 📄 API Documentation
 
