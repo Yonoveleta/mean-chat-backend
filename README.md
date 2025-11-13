@@ -1,5 +1,9 @@
 # 💬 MEAN Chat App
 
+![CI](https://github.com/Yonoveleta/mean-chat-backend/actions/workflows/ci.yml/badge.svg)
+![License](https://img.shields.io/github/license/Yonoveleta/mean-chat-backend)
+
+
 A real-time chat application built with the **MEAN stack** (MongoDB, Express, Angular, Node.js) and **Socket.io**.  
 This project simulates modern chat features such as private chats, group chats, and real-time messaging.
 

@@ -1,0 +1,43 @@
+name: CI - Node.js Backend
+
+# When the workflow runs
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm" # let setup-node cache npm dependencies automatically
+
+      - name: Install dependencies
+        # Use CI-friendly install. If you commit a lockfile prefer `npm ci`
+        run: npm ci
+
+      - name: Lint (optional)
+        # Fails the job if lint errors exist — remove/adjust if you don't have ESLint yet
+        run: npm run lint
+        # If you don't have lint configured yet, change to: run: echo "skip lint"
+
+      - name: Run tests
+        # Runs your test script defined in package.json (e.g. "jest")
+        run: npm test
+
+      - name: Upload test results (optional)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs
+          path: ./test-results || ./coverage || ./jest-results.xml
