@@ -26,7 +26,7 @@ jobs:
         # Use CI-friendly install. If you commit a lockfile prefer `npm ci`
         run: npm ci
 
-      - name: Lint (optional)
+      - name: Lint
         # Fails the job if lint errors exist — remove/adjust if you don't have ESLint yet
         run: npm run lint
         # If you don't have lint configured yet, change to: run: echo "skip lint"
@@ -35,7 +35,7 @@ jobs:
         # Runs your test script defined in package.json (e.g. "jest")
         run: npm test
 
-      - name: Upload test results (optional)
+      - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
