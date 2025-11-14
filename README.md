@@ -23,18 +23,24 @@ This project simulates modern chat features such as private chats, group chats, 
 ## 📂 Project Structure
 
 mean-chat-backend/
-- `server.js` — Main server file
-- `socket.js` — Socket.io event handlers
-- `routes/`
-  - `auth.js` — Authentication routes
-- `models/`
+- **server.js** — Entry point (Express + Socket.io init)
+- **sockets/**
+  - `index.js` — Main socket loader (registerModules)
+  - `userEvents.js` — User-related socket events
+  - `messageEvents.js` — Messaging events
+  - `roomEvents.js` — Room join/leave events
+  - `disconnectEvents.js` — Cleanup + leave notifications
+- **routes/**
+  - `auth.js` — REST auth routes
+- **models/**
   - `User.js`
   - `Chat.js`
   - `Message.js`
-- `public/` — Static frontend testing files
-- `data-model.md` — Mermaid ER diagram of database
-- `package.json`
-- `README.md`
+- **public/** — Temporary frontend testing files
+- **test/** — Jest tests (optional for now)
+- **data-model.md** — Mermaid ER diagram
+- **package.json**
+- **README.md**
 
 ## 🗃️ Database Schema
 
