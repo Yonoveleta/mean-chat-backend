@@ -2,7 +2,7 @@
 const express = require("express");
 const http = require("http");
 const mongoose = require("mongoose")
-const {Server} = require("socket.io")
+const { Server } = require("socket.io")
 const path = require("path")
 const socketHandler = require("./socket")
 
@@ -20,12 +20,9 @@ const server = http.createServer(app);
 // MongoDB init
 const MONGO_URI = "mongodb://127.0.0.1:27017/chatdb";
 
-mongoose.connect(MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log("Connected to MongoDB locally"))
-.catch(err => console.error("MongoDB connection error:", err));
+mongoose.connect(MONGO_URI)
+    .then(() => console.log("Connected to MongoDB locally"))
+    .catch(err => console.error("MongoDB connection error:", err));
 
 // Socket.io config
 const io = new Server(server, {
