@@ -1,26 +1,27 @@
+// Config
+require("dotenv").config();
+
 // Imports
 const express = require("express");
 const http = require("http");
 const mongoose = require("mongoose")
 const { Server } = require("socket.io")
 const path = require("path")
-const socketHandler = require("./socket")
+const socketHandler = require("./src/socket")
 
 // Swagger
 const swaggerUI = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
 
 // Routes
-const authRouter = require("./routes/auth");
+const authRouter = require("./src/routes/auth");
 
 // Create express app and server
 const app = express();
 const server = http.createServer(app);
 
 // MongoDB init
-const MONGO_URI = "mongodb://127.0.0.1:27017/chatdb";
-
-mongoose.connect(MONGO_URI)
+mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("Connected to MongoDB locally"))
     .catch(err => console.error("MongoDB connection error:", err));
 

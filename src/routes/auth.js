@@ -11,8 +11,6 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
-const JWT_SECRET = "secret-key";
-
 /**
  * @swagger
  * /auth/register:
@@ -120,7 +118,7 @@ router.post("/login", async (req, res) => {
         // Create JWT Token
         const token = jwt.sign(
             { userId: user._id, username: user.username },
-            JWT_SECRET,
+            process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
 

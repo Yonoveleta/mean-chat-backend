@@ -5,8 +5,6 @@ module.exports = (socket, io) => {
         const roomId = socket.roomId;
         const sender = socket.username;
 
-        console.log("HERE")
-
         if (!roomId || !sender || !message) {
             return socket.emit("error", "Invalid message payload or not in a room");
         }
