@@ -1,46 +1,8 @@
-/**
- * @swagger
- * tags:
- *   name: Auth
- *   description: User authentication
- */
-
-
 const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
-/**
- * @swagger
- * /auth/register:
- *   post:
- *     summary: Register a new user
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - username
- *               - password
- *             properties:
- *               username:
- *                 type: string
- *                 example: user123
- *               password:
- *                 type: string
- *                 example: secretpass
- *     responses:
- *       201:
- *         description: User registered successfully
- *       400:
- *         description: Username already exists
- *       500:
- *         description: Server error
- */
 // Register new User
 router.post("/register", async (req, res) => {
     try {
@@ -64,44 +26,6 @@ router.post("/register", async (req, res) => {
     }
 });
 
-/**
- * @swagger
- * /auth/login:
- *   post:
- *     summary: Login a user
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - username
- *               - password
- *             properties:
- *               username:
- *                 type: string
- *                 example: user123
- *               password:
- *                 type: string
- *                 example: secretpass
- *     responses:
- *       200:
- *         description: Successful login with JWT token
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 token:
- *                   type: string
- *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
- *       401:
- *         description: Invalid username or password
- *       500:
- *         description: Server error
- */
 // Login User
 router.post("/login", async (req, res) => {
     try {
@@ -128,6 +52,6 @@ router.post("/login", async (req, res) => {
         console.error(err);
         res.status(500).json({ error: "Server error" });
     }
-}); 
+});
 
 module.exports = router;

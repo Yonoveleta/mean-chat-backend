@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const Chat = require("../models/Chat");
-const { authenticateJWT } = require("../middleware/auth");
+const auth = require("../middleware/auth");
+
+router.use(auth);
 
 router.post("/", async (req, res) => {
     try {
@@ -21,3 +23,5 @@ router.post("/", async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 });
+
+module.exports = router;

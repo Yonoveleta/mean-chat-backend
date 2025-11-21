@@ -1,0 +1,109 @@
+openapi: 3.0.0
+
+info:
+  title: Chat App API
+  version: 1.0.0
+  description: API documentation for the chat application
+
+servers:
+  - url: http://localhost:3000
+
+paths:
+  /auth/login:
+    post:
+      summary: Login a user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  example: user123
+                password:
+                  type: string
+                  example: secretpass
+      responses:
+        "200":
+          description: Successful login with JWT token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        "401":
+          description: Invalid username or password
+        "500":
+          description: Server error
+
+  /auth/register:
+    post:
+      summary: Register a new user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  example: user123
+                password:
+                  type: string
+                  example: secretpass
+      responses:
+        "201":
+          description: User registered successfully
+        "400":
+          description: Username already exists
+        "500":
+          description: Server error
+
+  /chat:
+    post:
+      summary: Create a new chat
+      tags: [Chat]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - members
+                - name
+                - isGroup
+              properties:
+                members:
+                  type: array
+                  items:
+                    type: string
+                    description: MongoDB ObjectId
+                  example: ["67a123fbc9123e88d12f456a", "67b456fbc9123e88d12f789b"]
+                name:
+                  type: string
+                  example: Study Group
+                isGroup:
+                  type: boolean
+                  example: true
+      responses:
+        "201":
+          description: Chat created successfully
+        "400":
+          description: Bad request
+        "500":
+          description: Server error

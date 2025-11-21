@@ -8,13 +8,14 @@ const mongoose = require("mongoose")
 const { Server } = require("socket.io")
 const path = require("path")
 const socketHandler = require("./src/socket")
+const YAML = require("yamljs");
 
 // Swagger
 const swaggerUI = require("swagger-ui-express");
-const swaggerJsdoc = require("swagger-jsdoc");
 
 // Routes
 const authRouter = require("./src/routes/auth");
+const chatRouter = require("./src/routes/chat");
 
 // Create express app and server
 const app = express();
@@ -33,21 +34,6 @@ const io = new Server(server, {
     }
 });
 
-// Swagger config
-const options = {
-    definition: {
-        openapi: "3.0.0",
-        info: {
-            title: "Chat App API",
-            version: "1.0.0",
-            description: "API documentation for the Chat App"
-        }
-    },
-    apis: [path.join(__dirname, "/routes/*.js")]
-}
-
-const specs = swaggerJsdoc(options);
-
 // Set up socket logic
 socketHandler(io);
 
@@ -57,9 +43,11 @@ app.use(express.json());
 
 // Routing
 app.use("/auth", authRouter);
+app.use("/chat", chatRouter);
 
 // Swagger
-app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
+const swaggerDocument = YAML.load(path.join(__dirname, "swagger.yaml"));
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 // Start server
 const PORT = process.env.PORT || 3000;
