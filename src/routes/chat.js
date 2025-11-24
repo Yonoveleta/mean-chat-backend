@@ -9,8 +9,10 @@ router.post("/", async (req, res) => {
     try {
         const { members, name, isGroup } = req.body;
 
+        const allMembers = Array.from(new Set([...members, req.user.userId]));
+
         const chat = new Chat({
-            members,
+            members: allMembers,
             name,
             isGroup,
         });
