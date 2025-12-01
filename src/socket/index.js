@@ -1,3 +1,5 @@
+const jwt = require("jsonwebtoken");
+
 const eventModules = [
     { name: "UserEvents", module: require("./userEvents") },
     { name: "MessageEvents", module: require("./messageEvents") },

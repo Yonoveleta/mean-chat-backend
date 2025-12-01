@@ -2,90 +2,193 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <title>Chat Client</title>
-    <script src="https://cdn.socket.io/4.5.1/socket.io.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Chat App</title>
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        input,
+        textarea {
+            width: 300px;
+            padding: 8px;
+            margin: 5px 0;
+        }
+
+        button {
+            padding: 8px 12px;
+            margin: 5px 0;
+        }
+
+        #messages {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+
+        .status {
+            color: green;
+            font-weight: bold;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
 
-    <h2>Chat Client</h2>
-    <input id="roomInput" placeholder="Room ID" />
-    <button id="joinBtn">Join Room</button>
+    <h2>Login</h2>
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+    <button id="loginBtn">Login</button>
+    <p id="loginStatus"></p>
 
-    <input id="nameInput" placeholder="Your name" />
-    <br /><br />
+    <hr>
+
+    <h2>Chat</h2>
+    <input id="chatInput" placeholder="Chat ID">
+    <button id="joinBtn">Join Chat</button>
+
+    <br>
     <textarea id="messageInput" placeholder="Type a message"></textarea>
     <button id="sendBtn">Send</button>
 
+    <h3>Messages</h3>
     <ul id="messages"></ul>
 
     <script>
-        // Connect to server (adjust URL if needed)
-        const socket = io("http://localhost:3000");
+        let socket = null;
+        let token = null;
 
-        const roomInput = document.getElementById("roomInput");
-        const nameInput = document.getElementById("nameInput");
+        // Elements
+        const loginBtn = document.getElementById("loginBtn");
+        const loginStatus = document.getElementById("loginStatus");
+        const chatInput = document.getElementById("chatInput");
+        const joinBtn = document.getElementById("joinBtn");
         const messageInput = document.getElementById("messageInput");
         const sendBtn = document.getElementById("sendBtn");
         const messagesList = document.getElementById("messages");
 
-        // When connected
-        socket.on("connect", () => {
-            console.log("Connected to server as", socket.id);
-        });
+        // ----------------------------
+        // LOGIN (HTTP)
+        // ----------------------------
+        loginBtn.addEventListener("click", async () => {
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            if (!username || !password) return alert("Enter username and password");
 
-        // Listen for incoming chat messages
-        socket.on("chat-message", (data) => {
-            const { sender, message, timestamp } = data;
-            const li = document.createElement("li");
-            li.textContent = `[${new Date(timestamp).toLocaleTimeString()}] ${sender}: ${message}`;
-            messagesList.appendChild(li);
-        });
-
-        socket.on("user-left", (data) => {
-            const li = document.createElement("li");
-            li.textContent = `${data.username} left the chat`;
-            messagesList.appendChild(li);
-        });
-
-        socket.on("error", (errMsg) => {
-            alert("Socket error: " + errMsg);
-        });
-
-        // Join room when room ID input loses focus or on a button (you can add a join button)
-        joinBtn.addEventListener("click", () => {
-            const roomId = roomInput.value.trim();
-            if (roomId) {
-                socket.emit("join-room", {
-                    roomId: roomInput.value.trim(),
-                    username: nameInput.value.trim()
+            try {
+                const res = await fetch("http://localhost:3000/auth/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password })
                 });
-                console.log(`Joined room: ${roomId}`);
-                messagesList.innerHTML = ""; // Clear previous messages
+
+                const data = await res.json();
+                if (!res.ok) {
+                    loginStatus.textContent = "Login failed: " + data.error;
+                    loginStatus.className = "error";
+                    return;
+                }
+
+                token = data.token;
+                localStorage.setItem("jwt", token); // Persist token
+                loginStatus.textContent = "Logged in successfully!";
+                loginStatus.className = "status";
+
+                loginBtn.disabled = true; // Disable login after success
+
+                // Connect socket after login
+                connectSocket();
+
+            } catch (err) {
+                console.error("Login error", err);
+                loginStatus.textContent = "Login error";
+                loginStatus.className = "error";
             }
         });
 
-        // Send message on button click
+        // ----------------------------
+        // SOCKET CONNECTION
+        // ----------------------------
+        function connectSocket() {
+            if (!token) return;
+
+            socket = io("http://localhost:3000", { auth: { token } });
+
+            socket.on("connect", () => {
+                console.log("Socket connected:", socket.id);
+            });
+
+            socket.on("connect_error", (err) => {
+                console.error("Socket auth error:", err.message);
+                alert("Socket auth error: " + err.message);
+            });
+
+            socket.on("chat-message", ({ sender, message, timestamp }) => {
+                const li = document.createElement("li");
+                li.textContent = `[${new Date(timestamp).toLocaleTimeString()}] ${sender}: ${message}`;
+                messagesList.appendChild(li);
+            });
+
+            socket.on("user-left", ({ username }) => {
+                const li = document.createElement("li");
+                li.textContent = `${username} left the chat.`;
+                messagesList.appendChild(li);
+            });
+        }
+
+        // ----------------------------
+        // JOIN CHAT
+        // ----------------------------
+        joinBtn.addEventListener("click", () => {
+            const chatId = chatInput.value.trim();
+            if (!chatId) return alert("Enter chat ID");
+            if (!socket) return alert("You must login first");
+
+            socket.emit("join-room", { chatId });
+            console.log("Joined chat:", chatId);
+            messagesList.innerHTML = ""; // Clear old messages
+        });
+
+        // ----------------------------
+        // SEND MESSAGE
+        // ----------------------------
         sendBtn.addEventListener("click", () => {
-            const roomId = roomInput.value.trim();
-            const sender = nameInput.value.trim();
             const message = messageInput.value.trim();
+            if (!message) return;
+            if (!socket) return alert("You must login first");
 
-            if (!roomId || !sender || !message) {
-                alert("Please enter room ID, your name, and a message.");
-                return;
-            }
-
-            // Emit chat message to server
             socket.emit("chat-message", message);
 
-            // Optionally append your own message immediately
             const li = document.createElement("li");
             li.textContent = `[${new Date().toLocaleTimeString()}] You: ${message}`;
             messagesList.appendChild(li);
 
-            messageInput.value = ""; // Clear input
+            messageInput.value = "";
+        });
+
+        // ----------------------------
+        // Auto reconnect if token exists
+        // ----------------------------
+        window.addEventListener("load", () => {
+            const savedToken = localStorage.getItem("jwt");
+            if (savedToken) {
+                token = savedToken;
+                loginStatus.textContent = "Restored session";
+                loginStatus.className = "status";
+                loginBtn.disabled = true;
+                connectSocket();
+            }
         });
     </script>
 
