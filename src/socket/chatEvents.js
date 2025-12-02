@@ -4,17 +4,27 @@ module.exports = (socket, io) => {
     socket.on("join-chat", async ({ chatId }) => {
         if (!chatId) return socket.emit("error", "chatId required");
 
-        // Join the socket.io room named after the chat
-        socket.join(chatId);
-        socket.chatId = chatId;
+        try {
+            const chat = await Chat.findById(chatId);
+            if (!chat) {
+                return socket.emit("error", "Chat not found");
+            }
 
-        console.log(`User ${socket.user.username} joined chat ${chatId}`);
+            // Join the socket.io room named after the chat
+            socket.join(chatId);
+            socket.chatId = chatId;
 
-        // Notify other users in the chat
-        socket.to(chatId).emit("user-joined", {
-            username: socket.user.username,
-            socketId: socket.id
-        });
+            console.log(`User ${socket.user.username} joined chat ${chatId}`);
+
+            // Notify other users in the chat
+            socket.to(chatId).emit("user-joined", {
+                username: socket.user.username,
+                socketId: socket.id
+            });
+        } catch (err) {
+            console.log("Error joining the chat:", err);
+            socket.emit("error", "Server error");
+        }
     });
 
     socket.on("leave-chat", () => {

@@ -155,7 +155,7 @@
             if (!chatId) return alert("Enter chat ID");
             if (!socket) return alert("You must login first");
 
-            socket.emit("join-room", { chatId });
+            socket.emit("join-chat", { chatId });
             console.log("Joined chat:", chatId);
             messagesList.innerHTML = ""; // Clear old messages
         });
