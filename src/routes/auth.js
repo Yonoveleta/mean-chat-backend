@@ -1,7 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const {
+    generateAccessToken,
+    generateRefreshToken,
+    verifyRefreshToken,
+} = require("../utils/tokenUtils");
 
 // Register new User
 router.post("/register", async (req, res) => {
@@ -40,17 +44,41 @@ router.post("/login", async (req, res) => {
         if (!validPassword) return res.status(401).json({ error: "Invalid username or password" });
 
         // Create JWT Token
-        const token = jwt.sign(
-            { userId: user._id, username: user.username },
-            process.env.JWT_SECRET,
-            { expiresIn: "1h" }
-        );
+        const accessToken = generateAccessToken(user);
+        const refreshToken = generateRefreshToken(user);
 
-        res.json({ token });
+        // Set HttpOnly cookie
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "strict",
+            path: "/auth/refresh"
+        });
+
+        res.json({ accessToken });
 
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Server error" });
+    }
+});
+
+router.post("/refresh", (req, res) => {
+    try {
+        const token = req.cookies.refreshToken;
+        if (!token) return res.status(401).json({ error: "No refresh token" });
+
+        const decoded = verifyRefreshToken(token);
+
+        const newAccessToken = generateAccessToken({
+            _id: decoded.userId,
+            username: decoded.username
+        });
+
+        return res.json({ accessToken: newAccessToken });
+
+    } catch (err) {
+        return res.status(403).json({ error: "Invalid refresh token" });
     }
 });
 
